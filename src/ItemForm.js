@@ -2,7 +2,8 @@ import React, { Component, PropTypes } from 'react';
 
 export default class ItemForm extends Component {
   static propTypes = {
-    onNewItemSubmited: PropTypes.func.isRequired
+    onNewItemSubmited: PropTypes.func.isRequired,
+    editItem: PropTypes.shape({id: PropTypes.number.isRequired, description: PropTypes.string.isRequired})
   }
   constructor() {
     super();
@@ -12,13 +13,27 @@ export default class ItemForm extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.editItem && nextProps.editItem.id) {
+      this.setState({
+        newItem: nextProps.editItem.description
+      })
+    }
+  }
+
   onSubmit = (event) => {
     event.preventDefault();
-    const item = {
-      description: this.state.newItem,
-      completed: false
+
+    if(this.props.editItem) {
+      this.props.onEditItemSubmited({...this.props.editItem, description: this.state.newItem });
+    } else {
+      const item = {
+        description: this.state.newItem,
+        completed: false
+      }
+      this.props.onNewItemSubmited(item);
     }
-    this.props.onNewItemSubmited(item);
+
     this.setState({
       newItem: ''
     })

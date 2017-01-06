@@ -5,7 +5,8 @@ import './App.css';
 import Todos from './Todos';
 
 import { Provider } from 'react-redux';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
 const itemsLoading = (state = false, action) => {
   switch (action.type) {
@@ -13,6 +14,7 @@ const itemsLoading = (state = false, action) => {
       return true
     case 'ITEMS_LOADED':
     case 'ADD_NEW_ITEM':
+    case 'EDIT_ITEM':
       return false
     default:
       return state;
@@ -23,6 +25,13 @@ const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true 
   switch (action.type) {
     case 'ADD_NEW_ITEM':
       return [...state, { ...action.item, id: state.length + 1 }]
+    case 'EDIT_ITEM':
+      return state.map(item => {
+        if (item.id === action.item.id) {
+          return {...item, description: action.item.description}
+        }
+        return item
+      })
     case 'TOGGLE_ITEM_COMPLETION':
       return state.map(item => {
         if (item.id === action.id) {
@@ -40,7 +49,7 @@ const reducers = combineReducers({
   todosLoading: itemsLoading
 })
 
-const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), applyMiddleware(thunk));
 
 
 class App extends Component {

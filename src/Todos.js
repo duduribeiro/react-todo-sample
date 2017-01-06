@@ -4,24 +4,45 @@ import { connect } from 'react-redux';
 import ItemForm from './ItemForm';
 import ItemList from './ItemList';
 
+const addItem = (item) => {
+  return (dispatch) => {
+    dispatch({type: 'ITEMS_LOADING'});
+    setTimeout(() => {
+      dispatch({type: 'ADD_NEW_ITEM', item});
+    }, 1500)
+  }
+}
+
+const editItem = (item) => {
+  return (dispatch) => {
+    dispatch({type: 'ITEMS_LOADING'});
+    setTimeout(() => {
+      dispatch({type: 'EDIT_ITEM', item});
+    }, 1500)
+  }
+}
+
 class Todos extends Component {
   static propTypes = {
     items: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired
   }
 
+  constructor() {
+    super();
+
+    this.state = { editItem: null }
+  }
+
   onNewItemSubmited = (item) => {
-    this.props.dispatch({
-      type: 'ITEMS_LOADING'
+    this.props.dispatch(addItem(item))
+  }
+
+  onEditItemSubmited = (item) => {
+    this.props.dispatch(editItem(item))
+    this.setState({
+      editItem: null
     })
-
-    setTimeout(() => {
-      this.props.dispatch({
-        type: "ADD_NEW_ITEM",
-        item
-      })
-    }, 3000)
-
   }
 
   toggleItemCompletion = (id) => {
@@ -31,15 +52,25 @@ class Todos extends Component {
     })
   }
 
+  startEditItem = (id) => {
+    const editItem = this.props.items.filter(item => {
+      return item.id === id
+    })[0]
+
+    this.setState({
+      editItem
+    })
+  }
+
   render() {
     return (
       <div>
         <div>
-          <ItemForm onNewItemSubmited={this.onNewItemSubmited}  />
+          <ItemForm onNewItemSubmited={this.onNewItemSubmited} onEditItemSubmited={this.onEditItemSubmited} editItem={this.state.editItem} />
         </div>
         <div>
           {
-            this.props.loading ? <p>Loading...</p> : <ItemList items={this.props.items} onTogglComplete={this.toggleItemCompletion} />
+            this.props.loading ? <p>Loading...</p> : <ItemList items={this.props.items} onTogglComplete={this.toggleItemCompletion} onEditItem={this.startEditItem} />
           }
         </div>
       </div>
