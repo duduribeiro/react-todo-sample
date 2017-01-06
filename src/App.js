@@ -2,41 +2,35 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import ItemForm from './ItemForm';
-import ItemList from './ItemList';
+import Todos from './Todos';
+
+import { Provider } from 'react-redux';
+import { createStore, combineReducers } from 'redux';
+
+const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true }], action) => {
+  switch (action.type) {
+    case 'ADD_NEW_ITEM':
+      return [...state, { ...action.item, id: state.length + 1 }]
+    case 'TOGGLE_ITEM_COMPLETION':
+      return state.map(item => {
+        if (item.id === action.id) {
+          return {...item, completed: !item.completed }
+        }
+        return item
+      })
+    default:
+      return state
+  }
+}
+
+const reducers = combineReducers({
+  todos: itemsReducer
+})
+
+const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
 
 class App extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      items: [
-        { id: 1, description: 'My Task', completed: true }
-      ]
-    }
-  }
-
-
-
-  onNewItemSubmited = (item) => {
-    const id = this.state.items.length + 1;
-    this.setState({
-      items: [...this.state.items, {...item, id }]
-    })
-  }
-
-  toggleItemCompletion = (id) => {
-    const items = this.state.items.map(item => {
-      if (item.id === id) {
-        return {...item, completed: !item.completed }
-      }
-      return item
-    })
-    this.setState({
-      items: items
-    })
-  }
-
   render() {
     return (
       <div className="App">
@@ -44,14 +38,9 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h2>ToDo List</h2>
         </div>
-        <div>
-          <div>
-            <ItemForm onNewItemSubmited={this.onNewItemSubmited}  />
-          </div>
-          <div>
-            <ItemList items={this.state.items} onTogglComplete={this.toggleItemCompletion} />
-          </div>
-        </div>
+        <Provider store={store}>
+          <Todos />
+        </Provider>
       </div>
     );
   }
