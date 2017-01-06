@@ -7,6 +7,18 @@ import Todos from './Todos';
 import { Provider } from 'react-redux';
 import { createStore, combineReducers } from 'redux';
 
+const itemsLoading = (state = false, action) => {
+  switch (action.type) {
+    case 'ITEMS_LOADING':
+      return true
+    case 'ITEMS_LOADED':
+    case 'ADD_NEW_ITEM':
+      return false
+    default:
+      return state;
+  }
+}
+
 const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true }], action) => {
   switch (action.type) {
     case 'ADD_NEW_ITEM':
@@ -24,7 +36,8 @@ const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true 
 }
 
 const reducers = combineReducers({
-  todos: itemsReducer
+  todos: itemsReducer,
+  todosLoading: itemsLoading
 })
 
 const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());

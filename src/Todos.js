@@ -6,15 +6,22 @@ import ItemList from './ItemList';
 
 class Todos extends Component {
   static propTypes = {
-    items: PropTypes.array.isRequired
+    items: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired
   }
 
   onNewItemSubmited = (item) => {
-    // const id = this.props.items.length + 1;
     this.props.dispatch({
-      type: "ADD_NEW_ITEM",
-      item
+      type: 'ITEMS_LOADING'
     })
+
+    setTimeout(() => {
+      this.props.dispatch({
+        type: "ADD_NEW_ITEM",
+        item
+      })
+    }, 3000)
+
   }
 
   toggleItemCompletion = (id) => {
@@ -31,7 +38,9 @@ class Todos extends Component {
           <ItemForm onNewItemSubmited={this.onNewItemSubmited}  />
         </div>
         <div>
-          <ItemList items={this.props.items} onTogglComplete={this.toggleItemCompletion} />
+          {
+            this.props.loading ? <p>Loading...</p> : <ItemList items={this.props.items} onTogglComplete={this.toggleItemCompletion} />
+          }
         </div>
       </div>
     )
@@ -40,7 +49,8 @@ class Todos extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    items: state.todos
+    items: state.todos,
+    loading: state.todosLoading
   }
 }
 
