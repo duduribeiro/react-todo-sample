@@ -14,6 +14,7 @@ const itemsLoading = (state = false, action) => {
       return true
     case 'ITEMS_LOADED':
     case 'ADD_NEW_ITEM':
+    case 'REMOVE_ITEM':
     case 'EDIT_ITEM':
       return false
     default:
@@ -21,10 +22,25 @@ const itemsLoading = (state = false, action) => {
   }
 }
 
+const activeEditItemId = (state = null, action) => {
+  switch (action.type) {
+    case 'START_EDIT_ITEM':
+      return action.id
+    case 'FINISH_EDIT_ITEM':
+      return null
+    default:
+      return state
+  }
+}
+
 const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true }], action) => {
   switch (action.type) {
     case 'ADD_NEW_ITEM':
       return [...state, { ...action.item, id: state.length + 1 }]
+    case 'REMOVE_ITEM':
+      return state.filter(item => {
+        return item.id !== action.id
+      })
     case 'EDIT_ITEM':
       return state.map(item => {
         if (item.id === action.item.id) {
@@ -46,7 +62,8 @@ const itemsReducer = (state = [{ id: 1, description: 'My Task', completed: true 
 
 const reducers = combineReducers({
   todos: itemsReducer,
-  todosLoading: itemsLoading
+  todosLoading: itemsLoading,
+  activeEditItemId: activeEditItemId
 })
 
 const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), applyMiddleware(thunk));
